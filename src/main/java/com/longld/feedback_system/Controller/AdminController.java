@@ -1,10 +1,13 @@
 package com.longld.feedback_system.Controller;
 
+import com.longld.feedback_system.DTO.request.CommentRequest;
+import com.longld.feedback_system.DTO.response.CommentResponse;
 import com.longld.feedback_system.Entity.FeedBack;
 import com.longld.feedback_system.Entity.User;
 import com.longld.feedback_system.Repository.FeedBackRepository;
 import com.longld.feedback_system.Repository.UserRepository;
 import com.longld.feedback_system.Service.FeedBackService;
+import com.longld.feedback_system.Service.InternalCommentService;
 import com.longld.feedback_system.Util.FeedbackStatus;
 import com.longld.feedback_system.Util.FeedbackType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +24,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
-@RequestMapping("/ADMIN")
+@RestController
+@RequestMapping("/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     @Autowired
     private FeedBackService feedBackService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private InternalCommentService internalCommentService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/feedbacks/all")
     public ResponseEntity<?> getAllFeedBacks(
             @RequestParam (defaultValue = "0") int page,
@@ -43,7 +48,7 @@ public class AdminController {
         Page<FeedBack> Feedbacks = feedBackService.getAllFeedBacks(keyword, status, userId, type, pageable);
         return ResponseEntity.ok(Feedbacks);
     }
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PutMapping("feedbacks/approve/{feedbackId}")
     public ResponseEntity<?> updateFeedBackStatus(
             @PathVariable Long feedbackId,
@@ -51,6 +56,14 @@ public class AdminController {
     ){
         feedBackService.updateFeedBackStatus(feedbackId, status);
         return ResponseEntity.ok().build();
+    }
+    @PostMapping("/comment")
+    public ResponseEntity<CommentResponse> addComment( @RequestBody CommentRequest commentRequest){
+        return ResponseEntity.ok().body(internalCommentService.addComment(commentRequest));
+    }
+    @GetMapping("/comments/feedback/{feedbackId}")
+    public ResponseEntity<List<CommentResponse>> getComment(@PathVariable Long feedbackId){
+        return ResponseEntity.ok(internalCommentService.getCommentsForFeedback(feedbackId));
     }
 
 }
