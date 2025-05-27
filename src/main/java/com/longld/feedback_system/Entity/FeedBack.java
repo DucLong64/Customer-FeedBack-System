@@ -6,6 +6,7 @@ import com.longld.feedback_system.Util.FeedbackType;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
