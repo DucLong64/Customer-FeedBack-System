@@ -1,10 +1,13 @@
 package com.longld.feedback_system.Controller;
 
+import com.longld.feedback_system.DTO.request.CommentRequest;
+import com.longld.feedback_system.DTO.response.CommentResponse;
 import com.longld.feedback_system.Entity.FeedBack;
 import com.longld.feedback_system.Entity.User;
 import com.longld.feedback_system.Repository.FeedBackRepository;
 import com.longld.feedback_system.Repository.UserRepository;
 import com.longld.feedback_system.Service.FeedBackService;
+import com.longld.feedback_system.Service.InternalCommentService;
 import com.longld.feedback_system.Util.FeedbackStatus;
 import com.longld.feedback_system.Util.FeedbackType;
 import lombok.AllArgsConstructor;
@@ -26,11 +29,10 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin")
 @AllArgsConstructor
-
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
     private final FeedBackService feedBackService;
-
-    @PreAuthorize("hasRole('ADMIN')")
+    private final InternalCommentService internalCommentService;
     @GetMapping("/dashboard")
     public String getDashboard(
             @RequestParam (defaultValue = "0") int page,
@@ -57,7 +59,7 @@ public class AdminController {
         model.addAttribute("feedbackTypes", FeedbackType.values());
         return "dashboard";
     }
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PostMapping("/feedbacks/approve/{feedbackId}")
     public String updateFeedBackStatus(
             @PathVariable Long feedbackId,
@@ -71,11 +73,19 @@ public class AdminController {
     ){
         feedBackService.updateFeedBackStatus(feedbackId, status);
         // Chuyển hướng về dashboard, giữ lại tham số tìm kiếm và phân trang
-        return "redirect:dashboard?page=" + page + "&size=" + size + "&sort=" +
+        return "redirect:/admin/dashboard?page=" + page + "&size=" + size +
                 (keyword != null ? "&keyword=" + keyword : "") +
                 (currentStatus != null ? "&status=" + currentStatus : "") +
                 (userId != null ? "&userId=" + userId : "") +
                 (type != null ? "&type=" + type : "");
+    }
+    @PostMapping("/comment")
+    public ResponseEntity<CommentResponse> addComment(@RequestBody CommentRequest commentRequest){
+        return ResponseEntity.ok().body(internalCommentService.addComment(commentRequest));
+    }
+    @GetMapping("/comments/feedback/{feedbackId}")
+    public ResponseEntity<List<CommentResponse>> getComment(@PathVariable Long feedbackId){
+        return ResponseEntity.ok(internalCommentService.getCommentsForFeedback(feedbackId));
     }
 
 }

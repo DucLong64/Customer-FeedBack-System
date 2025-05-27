@@ -17,10 +17,10 @@
             <div class="col">
                 <select name="status" class="form-control">
                     <option value="">All Status</option>
-                    <option th:each="status : ${feedbackStatuses}"
-                            th:value="${status}"
-                            th:text="${status}"
-                            th:selected="${status} == ${status}"></option>
+                    <option th:each="statusItem : ${feedbackStatuses}"
+                            th:value="${statusItem}"
+                            th:text="${statusItem}"
+                            th:selected="${statusItem} == ${status}"></option>
                 </select>
             </div>
             <div class="col">
@@ -29,10 +29,10 @@
             <div class="col">
                 <select name="type" class="form-control">
                     <option value="">All Types</option>
-                    <option th:each="type : ${feedbackTypes}"
-                            th:value="${type}"
-                            th:text="${type}"
-                            th:selected="${type} == ${type}"></option>
+                    <option th:each="typeItem : ${feedbackTypes}"
+                            th:value="${typeItem}"
+                            th:text="${typeItem}"
+                            th:selected="${typeItem} == ${type}"></option>
                 </select>
             </div>
             <div class="col">
@@ -71,7 +71,8 @@
                     <input type="hidden" name="page" th:value="${currentPage}"/>
                     <input type="hidden" name="size" th:value="${pageSize}"/>
                     <input type="hidden" name="keyword" th:value="${keyword}"/>
-                    <input type="hidden" name="status" th:value="${status}"/>
+
+                    <input type="hidden" name="currentStatus" th:value="${status}"/>
                     <input type="hidden" name="userId" th:value="${userId}"/>
                     <input type="hidden" name="type" th:value="${type}"/>
                     <select name="status" class="form-select d-inline w-auto">
